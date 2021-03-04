@@ -1,0 +1,17 @@
+FROM ubuntu:20.04
+
+RUN apt-get update && \
+    apt-transport-https \
+    software-properties-common \
+    ca-certificates \
+    lsb-release \
+    wget \
+    curl \
+    git \
+    gnupg -y
+
+RUN wget https://apt.puppetlabs.com/puppet6-release-focal.deb && \
+    dpkg -i puppet6-release-focal.deb && \
+    apt-get update && \
+    apt-get install puppet-agent && \
+    /opt/puppetlabs/bin/puppet module install puppetlabs-image_build
