@@ -3,14 +3,16 @@ function dockerCheck () {
     now="$(date +'%j-%T')"
     echo 'Docker successfully installed, Warning!!!'
     echo 'THIS SCRIPT WILL DELETE YOUR EXISTING MINIKUBE CLUSTER'
-    echo 'THIS SCRIPT WILL DELETE install kubectl, and minikube if they do not exist'
+    echo 'THIS SCRIPT WILL install minikube if it does not exist'
     echo 'THIS SCRIPT WILL REPLACE BUT BACKUP YOUR EXISTING KUBERNETES CONTEXT'
     echo "IF YOUR CONTEXT EXISTED BEFORE, IT IS NOW AT ~/.kube/config.backup.$now"
-    cp ~/.kube/config ~/.kube/config.backup.$now
     while true; do
     read -p "Do you wish to run this demo given the previous conditions? y/n: > " yn
       case $yn in
-          [Yy]* ) echo 'Running demo'; sleep 1; break;;
+          [Yy]* ) echo 'Running demo'; sleep 1; 
+             cp ~/.kube/config ~/.kube/config.backup.$now
+             break
+             ;;
           [Nn]* ) echo 'Exiting'; exit;;
           * ) echo "Please answer yes or no.";;
       esac
@@ -22,7 +24,7 @@ function dockerCheck () {
 }
 
 checkExist () {
-  if "$(basename $(pwd))" == "pup-mini"; then
+  if echo "$(basename $(pwd))" == "pup-mini"; then
     echo 'Code challenge already exists locally'
   else
     docker run -ti --rm -v ${HOME}:/root -v $(pwd):/git alpine/git clone git@github.com:brokorus/pup-mini.git
@@ -114,8 +116,6 @@ function buildToolImage () {
 cat <<EOF > dockerfile
 FROM ubuntu:20.04
 
-${PWD##*/}
-
 RUN apt-get update && \
     apt-transport-https \
     software-properties-common \
@@ -135,17 +135,21 @@ EOF
 docker build -t puppet-docker-builder:0.1.0 .
 }
 
-function configureDockerRegistry () {
-  helm repo add twuni https://helm.twun.io
-  helm install twuni/docker-registry
+function installDockerRegistry () {
+docker run -it -w /charts -v $(pwd)/charts:/charts -v ~/.kube:/root/.kube dtzar/helm-kubectl  helm install ./docker-registry
 }
 
 # check if system meets pre-reqs
 dockerCheck 
 
+# Accomodate for remote curl pipe
 checkExist
 
+# If minikube not installed, install
 minikubeSetup
+
+# Setup docker registry for puppet docker builds
+installDockerRegistry
 
 buildToolImage 
 
