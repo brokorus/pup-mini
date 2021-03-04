@@ -7,14 +7,14 @@ function dockerCheck () {
     echo 'THIS SCRIPT WILL REPLACE BUT BACKUP YOUR EXISTING KUBERNETES CONTEXT'
     echo "IF YOUR CONTEXT EXISTED BEFORE, IT IS NOW AT ~/.kube/config.backup.$now"
     cp ~/.kube/config ~/.kube/config.backup.$now
-    while true; do
-    read -p "Do you wish to run this demo given the previous conditions? y/n: > " yn
-      case $yn in
-          [Yy]* ) echo 'Running demo'; sleep 1; break;;
-          [Nn]* ) echo 'Exiting'; exit;;
-          * ) echo "Please answer yes or no.";;
-      esac
-    done
+#    while true; do
+#    read -p "Do you wish to run this demo given the previous conditions? y/n: > " yn
+#      case $yn in
+#          [Yy]* ) echo 'Running demo'; sleep 1; break;;
+#          [Nn]* ) echo 'Exiting'; exit;;
+#          * ) echo "Please answer yes or no.";;
+#      esac
+#    done
   else
     echo "Please install and or start Docker run this demo"
     exit
